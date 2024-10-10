@@ -9,6 +9,17 @@ import { ArrowUpDown, ExternalLink, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import Link from "next/link";
+import * as dayjs from 'dayjs';
+
+var RelativeTime = require("dayjs/plugin/relativeTime");
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Input } from "./ui/input";
+dayjs.extend(RelativeTime);
+dayjs.extend(timezone);
+dayjs.extend(utc);
 
 interface FeedProps {
     packages: Package[],
@@ -49,6 +60,34 @@ const columns: ColumnDef<Package>[] = [
         }
     },
     {
+        accessorKey: "finished_at",
+        header: ({ column }) => {
+            return (
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Time
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({row}) => {
+            const temp = row.getValue("finished_at");
+            console.log(row.getValue("name"), row.getValue("version"), temp);
+            const date = dayjs.unix(row.getValue("finished_at"));
+            const fmt = date.format("MMMM D, YYYY [at] h:mm:ss A");
+            return (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>{date.fromNow()}</TooltipTrigger>
+                        <TooltipContent>
+                            {fmt}
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            )
+
+        }
+    },
+    {
         id: "more",
         cell: ({ row }) => {
             const pkg = row.original;
@@ -66,7 +105,18 @@ const columns: ColumnDef<Package>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
-                            Report Package
+                            <Dialog>
+                                <DialogTrigger>Report Package</DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Report {pkg.name} v{pkg.version}</DialogTitle>
+                                    </DialogHeader>
+                                    <div>
+                                        <p>Additional Information</p>
+                                        <Input />
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
