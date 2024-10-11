@@ -27,6 +27,35 @@ interface FeedProps {
     packages: Package[],
 }
 
+interface ReportDialogProps {
+    pkg: Package,
+    open: boolean,
+    onOpenChange: (open: boolean) => void,
+}
+function ReportDialog({ pkg, open, onOpenChange }: ReportDialogProps) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Report {pkg.name} v{pkg.version}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-2">
+                    <Label htmlFor="additional-information">Additional Information</Label>
+                    <Textarea id="additional-information"/>
+                </div>
+
+                <div className="space-y-2 mt-4">
+                    <Label htmlFor="inspector-url">Inspector URL</Label>
+                    <Input id="inspector-url" defaultValue={pkg.inspector_url || ""}/>
+                </div>
+                <DialogFooter>
+                    <Button variant="destructive">Report</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 const columns: ColumnDef<Package>[] = [
     {
         accessorKey: "name",
@@ -91,8 +120,10 @@ const columns: ColumnDef<Package>[] = [
         id: "more",
         cell: ({ row }) => {
             const pkg = row.original;
+            const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
             return (
-                <Dialog>
+                <>
+                    <ReportDialog pkg={pkg} open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}/>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -109,35 +140,15 @@ const columns: ColumnDef<Package>[] = [
                                     ? <Link className="w-full" href={pkg.inspector_url} target="_blank">View on Inspector</Link> 
                                     : <></>}
                             </DropdownMenuItem>
-                            <DialogTrigger asChild>
-                                <DropdownMenuItem disabled={typeof pkg.reported_at === null}>
-                                    <span className="w-full cursor-pointer">Report</span>
-                                </DropdownMenuItem>
-                            </DialogTrigger>
+                            <DropdownMenuItem disabled={typeof pkg.reported_at === null} onSelect={_ => setIsReportDialogOpen(true)}>
+                                <span className="w-full cursor-pointer">Report</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem>
                                 View detailed information
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Report {pkg.name} v{pkg.version}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-2">
-                            <Label htmlFor="additional-information">Additional Information</Label>
-                            <Textarea id="additional-information"/>
-                        </div>
-
-                        <div className="space-y-2 mt-4">
-                            <Label htmlFor="inspector-url">Inspector URL</Label>
-                            <Input id="inspector-url" defaultValue={pkg.inspector_url || ""}/>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="destructive">Report</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                </>
             )
         }
     }
