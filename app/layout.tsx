@@ -4,6 +4,7 @@ import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { getSession } from "@auth0/nextjs-auth0";
+import LoggedInUserWidget from "@/components/user";
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -24,7 +25,12 @@ export default async function RootLayout({
     return (
         <html lang="en">
             <UserProvider user={session?.user}>
-                <body className={cn("dark min-h-screen bg-background font-sans antialiased", fontSans.variable)}>{children}</body>
+                <body className={cn("dark min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
+                    <div className="flex justify-end p-4">
+                        <LoggedInUserWidget />
+                    </div>
+                    {children}
+                </body>
             </UserProvider>
         </html>
     );

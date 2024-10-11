@@ -5,17 +5,19 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowMode
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Separator } from "./ui/separator";
 import { useState } from "react";
-import { ArrowUpDown, ExternalLink, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import Link from "next/link";
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 var RelativeTime = require("dayjs/plugin/relativeTime");
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 dayjs.extend(RelativeTime);
 dayjs.extend(timezone);
@@ -70,8 +72,6 @@ const columns: ColumnDef<Package>[] = [
             )
         },
         cell: ({row}) => {
-            const temp = row.getValue("finished_at");
-            console.log(row.getValue("name"), row.getValue("version"), temp);
             const date = dayjs.unix(row.getValue("finished_at"));
             const fmt = date.format("MMMM D, YYYY [at] h:mm:ss A");
             return (
@@ -92,38 +92,52 @@ const columns: ColumnDef<Package>[] = [
         cell: ({ row }) => {
             const pkg = row.original;
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                            <Link href={`https://pypi.org/project/${pkg.name}/${pkg.version}/`} target="_blank">View on PyPI</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <Dialog>
-                                <DialogTrigger>Report Package</DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Report {pkg.name} v{pkg.version}</DialogTitle>
-                                    </DialogHeader>
-                                    <div>
-                                        <p>Additional Information</p>
-                                        <Input />
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            View detailed information
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Dialog>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                                <Link className="w-full" href={`https://pypi.org/project/${pkg.name}/${pkg.version}/`} target="_blank">View on PyPI</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                {pkg.inspector_url 
+                                    ? <Link className="w-full" href={pkg.inspector_url} target="_blank">View on Inspector</Link> 
+                                    : <></>}
+                            </DropdownMenuItem>
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem disabled={typeof pkg.reported_at === null}>
+                                    <span className="w-full cursor-pointer">Report</span>
+                                </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DropdownMenuItem>
+                                View detailed information
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Report {pkg.name} v{pkg.version}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-2">
+                            <Label htmlFor="additional-information">Additional Information</Label>
+                            <Textarea id="additional-information"/>
+                        </div>
+
+                        <div className="space-y-2 mt-4">
+                            <Label htmlFor="inspector-url">Inspector URL</Label>
+                            <Input id="inspector-url" defaultValue={pkg.inspector_url || ""}/>
+                        </div>
+                        <DialogFooter>
+                            <Button variant="destructive">Report</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             )
         }
     }
