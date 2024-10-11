@@ -19,6 +19,7 @@ import utc from "dayjs/plugin/utc";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
+import RelativeTimstamp from "./timestamp";
 dayjs.extend(RelativeTime);
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -102,18 +103,7 @@ const columns: ColumnDef<Package>[] = [
         },
         cell: ({row}) => {
             const date = dayjs.unix(row.getValue("finished_at"));
-            const fmt = date.format("MMMM D, YYYY [at] h:mm:ss A");
-            return (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>{date.fromNow()}</TooltipTrigger>
-                        <TooltipContent>
-                            {fmt}
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            )
-
+            return <RelativeTimstamp date={date} />
         }
     },
     {
