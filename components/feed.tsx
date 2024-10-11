@@ -28,12 +28,13 @@ interface FeedProps {
     packages: Package[],
 }
 
-interface ReportDialogProps {
+// Props for any controlled dialog that uses package information
+interface PackageDialogProps {
     pkg: Package,
     open: boolean,
     onOpenChange: (open: boolean) => void,
 }
-function ReportDialog({ pkg, open, onOpenChange }: ReportDialogProps) {
+function ReportDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
