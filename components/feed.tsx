@@ -58,6 +58,34 @@ function ReportDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
     )
 }
 
+function DetailedInformationDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
+    const buildCommitHashGithubURL = (commitHash: string) => `https://github.com/vipyrsec/security-intelligence/commit/${commitHash}`;
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            {/* We must prevent auto focus here, otherwise all of the RelativeTimestamps also get focused automatically */}
+            <DialogContent onOpenAutoFocus={e => e.preventDefault()}>
+                <DialogHeader>
+                    <DialogTitle>{pkg.name} v{pkg.version}</DialogTitle>
+                </DialogHeader>
+
+                <p>Rules: {pkg.rules?.join(", ") || "None"} (Score: {pkg.score})</p>
+                <p>Queued <RelativeTimstamp date={dayjs.unix(pkg.queued_at)}/> by {pkg.queued_by}</p>
+                {pkg.finished_at && pkg.finished_by
+                    ? <p>Scanned <RelativeTimstamp date={dayjs.unix(pkg.finished_at)}/> by {pkg.finished_by}</p> 
+                    : <></>}
+
+                {pkg.commit_hash 
+                    ? <p>
+                        This package was scanned with commit hash {" "}
+                        <Link href={buildCommitHashGithubURL(pkg.commit_hash)} target="_blank">{pkg.commit_hash}</Link>
+                    </p> 
+                    : <></>}
+                
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 const columns: ColumnDef<Package>[] = [
     {
         accessorKey: "name",
@@ -112,9 +140,11 @@ const columns: ColumnDef<Package>[] = [
         cell: ({ row }) => {
             const pkg = row.original;
             const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+            const [isDetailedInformationDialogOpen, setIsDetailedInformationDialogOpen] = useState(false);
             return (
                 <>
                     <ReportDialog pkg={pkg} open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}/>
+                    <DetailedInformationDialog pkg={pkg} open={isDetailedInformationDialogOpen} onOpenChange={setIsDetailedInformationDialogOpen}/>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
@@ -134,7 +164,7 @@ const columns: ColumnDef<Package>[] = [
                             <DropdownMenuItem disabled={typeof pkg.reported_at === null} onSelect={_ => setIsReportDialogOpen(true)}>
                                 <span className="w-full cursor-pointer">Report</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onSelect={_ => setIsDetailedInformationDialogOpen(true)}>
                                 View detailed information
                             </DropdownMenuItem>
                         </DropdownMenuContent>
