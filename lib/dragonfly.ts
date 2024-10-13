@@ -1,26 +1,19 @@
-enum ScanStatus {
-    Queued,
-    Pending,
-    Finished,
-    Failed,
-}
-
 export interface Package {
     scan_id: string,
     name: string,
     version: string,
-    status: ScanStatus | null,
+    status: string | null,
     score: number | null,
     inspector_url: string | null,
     rules: string[] | null,
     download_urls: string[] | null,
-    queued_at: Date | null,
-    queued_by: string | null,
-    pending_at: Date | null,
+    queued_at: number,
+    queued_by: string,
+    pending_at: number | null,
     pending_by: string | null,
-    reported_at: Date | null,
+    reported_at: number | null,
     reported_by: string | null,
-    finished_at: Date | null,
+    finished_at: number | null,
     finished_by: string | null,
     commit_hash: string | null,
 }
