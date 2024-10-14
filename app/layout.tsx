@@ -5,6 +5,7 @@ import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { getSession } from "@auth0/nextjs-auth0";
 import LoggedInUserWidget from "@/components/user";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
     subsets: ["latin"],
@@ -30,6 +31,7 @@ export default async function RootLayout({
                         <LoggedInUserWidget />
                     </div>
                     {children}
+                    <Toaster />
                 </body>
             </UserProvider>
         </html>
