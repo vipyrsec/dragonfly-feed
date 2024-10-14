@@ -44,6 +44,14 @@ export async function queryPackages({ name, version, since }: Query, accessToken
 
     return response.json();
 }
+
+export interface ReportPackageBody {
+    name: string,
+    version: string,
+    additionalInformation: string | null,
+    inspectorUrl: string | null,
+}
+
 export class DragonflyError extends Error {
     method: string;
     url: string;
@@ -57,4 +65,25 @@ export class DragonflyError extends Error {
         this.statusCode = statusCode;
         this.body = body;
     }
+}
+
+export async function reportPackage({ name, version, additionalInformation, inspectorUrl }: ReportPackageBody, accessToken: string) {
+    const url = "https://dragonfly-staging.vipyrsec.com/report";
+    const response = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+            name,
+            version,
+            "additional_information": additionalInformation,
+            "inspector_url": inspectorUrl,
+        }),
+        headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        }
+    });
+
+    const json = await response.json()
+
+    if(!response.ok) throw new DragonflyError("POST", url, response.status, json);
 }
