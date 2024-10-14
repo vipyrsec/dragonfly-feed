@@ -44,3 +44,17 @@ export async function queryPackages({ name, version, since }: Query, accessToken
 
     return response.json();
 }
+export class DragonflyError extends Error {
+    method: string;
+    url: string;
+    statusCode: number;
+    body: any;
+
+    constructor(method: string, url: string, statusCode: number, body: any) {
+        super();
+        this.method = method;
+        this.url = url;
+        this.statusCode = statusCode;
+        this.body = body;
+    }
+}
