@@ -1,25 +1,26 @@
 "use client"
 
-import { Package } from "@/lib/dragonfly"
+import { DragonflyError, Package, reportPackage } from "@/lib/dragonfly"
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getSortedRowModel, SortingState } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Separator } from "./ui/separator";
 import { useState } from "react";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Loader2, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import Link from "next/link";
 import dayjs from 'dayjs';
+import { reportPackageAction } from "@/actions";
 
 var RelativeTime = require("dayjs/plugin/relativeTime");
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import RelativeTimstamp from "./timestamp";
+import { useToast } from "@/hooks/use-toast";
 dayjs.extend(RelativeTime);
 dayjs.extend(timezone);
 dayjs.extend(utc);
@@ -35,6 +36,24 @@ interface PackageDialogProps {
     onOpenChange: (open: boolean) => void,
 }
 function ReportDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [additionalInformation, setAdditionalInformation] = useState("");
+    const [inspectorUrl, setInspectorUrl] = useState(pkg.inspector_url || "");
+    const { toast } = useToast();
+
+    const handleClick = async () => {
+        setIsLoading(true);
+        const res = await reportPackageAction({ name: pkg.name, version: pkg.version, additionalInformation, inspectorUrl })
+        if(typeof res?.error === "string") {
+            toast({ description: res.error, variant: "destructive" });
+        } else {
+            toast({ description: `Successfully reported ${pkg.name} v${pkg.version}` });
+        }
+
+        setIsLoading(true);
+        setIsLoading(false);
+        onOpenChange(false); // Close modal
+    };
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
@@ -43,15 +62,18 @@ function ReportDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
                 </DialogHeader>
                 <div className="space-y-2">
                     <Label htmlFor="additional-information">Additional Information</Label>
-                    <Textarea id="additional-information"/>
+                    <Textarea id="additional-information" value={additionalInformation} onChange={e => setAdditionalInformation(e.target.value)}/>
                 </div>
 
                 <div className="space-y-2 mt-4">
                     <Label htmlFor="inspector-url">Inspector URL</Label>
-                    <Input id="inspector-url" defaultValue={pkg.inspector_url || ""}/>
+                    <Input id="inspector-url" value={inspectorUrl} onChange={e => setInspectorUrl(e.target.value)}/>
                 </div>
                 <DialogFooter>
-                    <Button variant="destructive">Report</Button>
+                    {isLoading 
+                        ? <Button variant="destructive" disabled><Loader2 className="h-4 w-4 animate-spin" /></Button>
+                        : <Button variant="destructive" onClick={handleClick}>Report</Button>
+                    }
                 </DialogFooter>
             </DialogContent>
         </Dialog>
