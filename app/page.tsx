@@ -48,10 +48,10 @@ export default function queryPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="60">1 minute ago</SelectItem>
-                                <SelectItem value="120">2 minute ago</SelectItem>
-                                <SelectItem value="300">5 minute ago</SelectItem>
-                                <SelectItem value="600">10 minute ago</SelectItem>
-                                <SelectItem value="1800">30 minute ago</SelectItem>
+                                <SelectItem value="120">2 minutes ago</SelectItem>
+                                <SelectItem value="300">5 minutes ago</SelectItem>
+                                <SelectItem value="600">10 minutes ago</SelectItem>
+                                <SelectItem value="1800">30 minutes ago</SelectItem>
                                 <SelectItem value="3600">1 hour ago</SelectItem>
                                 <SelectItem value="10800">3 hours ago</SelectItem>
                                 <SelectItem value="21600">6 hours ago</SelectItem>
