@@ -179,6 +179,72 @@ function DetailedInformationDialog({
   );
 }
 
+function MorePackageOptionsDropdown({ pkg }: { pkg: Package }) {
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [
+    isDetailedInformationDialogOpen,
+    setIsDetailedInformationDialogOpen,
+  ] = useState(false);
+  return (
+    <>
+      <ReportDialog
+        pkg={pkg}
+        open={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
+      />
+      <DetailedInformationDialog
+        pkg={pkg}
+        open={isDetailedInformationDialogOpen}
+        onOpenChange={setIsDetailedInformationDialogOpen}
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <Link
+              className="w-full"
+              href={`https://pypi.org/project/${pkg.name}/${pkg.version}/`}
+              target="_blank"
+            >
+              View on PyPI
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            {pkg.inspector_url ? (
+              <Link
+                className="w-full"
+                href={pkg.inspector_url}
+                target="_blank"
+              >
+                View on Inspector
+              </Link>
+            ) : (
+              <></>
+            )}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={typeof pkg.reported_at === null}
+            onSelect={(_) => setIsReportDialogOpen(true)}
+          >
+            <span className="w-full cursor-pointer">Report</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={(_) => setIsDetailedInformationDialogOpen(true)}
+          >
+            View detailed information
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
+
+}
+
 const columns: ColumnDef<Package>[] = [
   {
     accessorKey: "name",
@@ -242,71 +308,7 @@ const columns: ColumnDef<Package>[] = [
   },
   {
     id: "more",
-    cell: ({ row }) => {
-      const pkg = row.original;
-      const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
-      const [
-        isDetailedInformationDialogOpen,
-        setIsDetailedInformationDialogOpen,
-      ] = useState(false);
-      return (
-        <>
-          <ReportDialog
-            pkg={pkg}
-            open={isReportDialogOpen}
-            onOpenChange={setIsReportDialogOpen}
-          />
-          <DetailedInformationDialog
-            pkg={pkg}
-            open={isDetailedInformationDialogOpen}
-            onOpenChange={setIsDetailedInformationDialogOpen}
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Link
-                  className="w-full"
-                  href={`https://pypi.org/project/${pkg.name}/${pkg.version}/`}
-                  target="_blank"
-                >
-                  View on PyPI
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                {pkg.inspector_url ? (
-                  <Link
-                    className="w-full"
-                    href={pkg.inspector_url}
-                    target="_blank"
-                  >
-                    View on Inspector
-                  </Link>
-                ) : (
-                  <></>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                disabled={typeof pkg.reported_at === null}
-                onSelect={(_) => setIsReportDialogOpen(true)}
-              >
-                <span className="w-full cursor-pointer">Report</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(_) => setIsDetailedInformationDialogOpen(true)}
-              >
-                View detailed information
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      );
-    },
+    cell: ({ row }) => <MorePackageOptionsDropdown pkg={row.original} />,
   },
 ];
 
