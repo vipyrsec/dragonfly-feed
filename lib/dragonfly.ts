@@ -1,3 +1,5 @@
+const MAINFRAME_API_URL: string = process.env.MAINFRAME_API_URL || "http://localhost:8000";
+
 export interface Package {
     scan_id: string,
     name: string,
@@ -35,7 +37,7 @@ export async function queryPackages({ name, version, since }: Query, accessToken
     if (since) {
         qs.append("since", Math.floor(since.getTime() / 1000).toString());
     }
-    const response = await fetch("https://dragonfly-staging.vipyrsec.com/package?" + qs.toString(), {
+    const response = await fetch(MAINFRAME_API_URL + "?" + qs.toString(), {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${accessToken}`
@@ -68,7 +70,7 @@ export class DragonflyError extends Error {
 }
 
 export async function reportPackage({ name, version, additionalInformation, inspectorUrl }: ReportPackageBody, accessToken: string) {
-    const url = "https://dragonfly-staging.vipyrsec.com/report";
+    const url = MAINFRAME_API_URL + "/report";
     const response = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
