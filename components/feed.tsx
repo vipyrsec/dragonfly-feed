@@ -26,7 +26,7 @@ dayjs.extend(timezone);
 dayjs.extend(utc);
 
 interface FeedProps {
-    packages: Package[],
+    packages?: Package[],
 }
 
 // Props for any controlled dialog that uses package information
@@ -268,7 +268,10 @@ export default function Feed({ packages }: FeedProps) {
         <div className="py-4 space-y-4">
             <p className="text-2xl font-bold">Feed</p>
             <Separator />
-            <DataTable columns={columns} data={packages} />
+            { packages
+            ? <DataTable columns={columns} data={packages} />
+            : <p>There was an unexpected error while trying to fetch packages.</p>}
+            
         </div>
     )
 
