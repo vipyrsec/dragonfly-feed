@@ -13,8 +13,9 @@ export async function reportPackageAction(body: ReportPackageBody) {
         // Server actions must return serializable errors to the client
         if(e instanceof DragonflyError) {
             return { error: `${e.statusCode}: ${e.body.detail}` }
+        } else {
+            console.error("Error occured in report server action:", e);
+            return { error: "An unknown error occured." };
         }
-
-        throw e;
     }
 }
