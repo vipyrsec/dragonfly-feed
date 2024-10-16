@@ -118,7 +118,7 @@ function ReportDialog({ pkg, open, onOpenChange }: PackageDialogProps) {
               <Loader2 className="h-4 w-4 animate-spin" />
             </Button>
           ) : (
-            <Button variant="destructive" onClick={handleClick}>
+            <Button variant="destructive" onClick={handleClick} disabled={!additionalInformation || !inspectorUrl}>
               Report
             </Button>
           )}
