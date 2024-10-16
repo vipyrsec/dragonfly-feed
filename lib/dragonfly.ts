@@ -41,7 +41,7 @@ export async function queryPackages(
   if (since) {
     qs.append("since", Math.floor(since.getTime() / 1000).toString());
   }
-  const response = await fetch(MAINFRAME_API_URL + "?" + qs.toString(), {
+  const response = await fetch(MAINFRAME_API_URL + "/package?" + qs.toString(), {
     method: "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,
